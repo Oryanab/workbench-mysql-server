@@ -1,5 +1,6 @@
 const express = require("express");
 const mysql = require("mysql2");
+const nanoid = require("nanoid");
 
 // Should be kept as environment variable
 const mysqlConfig = {
@@ -24,38 +25,130 @@ app.get("/", function (req, res) {
   res.send("Testing my server");
 });
 
-//  Creating first table "numbers"
-app.get("/create-table", function (req, res) {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS numbers (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      number INT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=INNODB;
-  `;
-  con.query(sql, function (err, result) {
-    if (err) throw err;
-    res.send("numbers table created");
-  });
-});
+/*
+GET /:teacherID
+GET /:classID
+GET /:pupilID
+GET /:classID
+Will reply with information about the specific object
+*/
 
-// Adding a random number ti "numbers" table
-app.get("/insert", function (req, res) {
-  const number = Math.round(Math.random() * 100);
-  const sql = `INSERT INTO numbers (number) VALUES (${number})`;
-  con.query(sql, function (err, result) {
-    if (err) throw err;
-    res.send(`${number} inserted into table`);
-  });
-});
-
-// Fetching number's table
-app.get("/fetch", function (req, res) {
-  const sql = `SELECT * FROM numbers`;
+// GET /:teacherID
+app.get("/fetch/:teacherID", function (req, res) {
+  const sql = `SELECT * FROM teachers where id=${req.params.teacherID}`;
   con.query(sql, function (err, result, fields) {
     console.log(result);
     if (err) throw err;
     res.send(JSON.stringify(result));
+  });
+});
+
+// GET /:classID
+app.get("/fetch/:classID", function (req, res) {
+  const sql = `SELECT * FROM classes where id=${req.params.classID}`;
+  con.query(sql, function (err, result, fields) {
+    console.log(result);
+    if (err) throw err;
+    res.send(JSON.stringify(result));
+  });
+});
+
+// GET /:studentsID
+app.get("/fetch/:studentsID", function (req, res) {
+  const sql = `SELECT * FROM students where id=${req.params.studentsID}`;
+  con.query(sql, function (err, result, fields) {
+    console.log(result);
+    if (err) throw err;
+    res.send(JSON.stringify(result));
+  });
+});
+
+// GET /:subjectID
+app.get("/fetch/:subjectID", function (req, res) {
+  const sql = `SELECT * FROM subjects where id=${req.params.subjectID}`;
+  con.query(sql, function (err, result, fields) {
+    console.log(result);
+    if (err) throw err;
+    res.send(JSON.stringify(result));
+  });
+});
+
+/*
+POST /new/pupil
+POST /new/teacher
+Will create a new object at the correct table with information in the req.body
+*/
+
+// POST /new/student
+app.post("/new/student", function (req, res) {
+  const sql = `insert into students (ID, first_name, last_name) VALUES (${nanoid()}, ${
+    req.body.first_name
+  },${req.body.last_name})`;
+
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    res.send(`created`);
+  });
+});
+
+// POST /new/teacher
+app.post("/new/teacher", function (req, res) {
+  const sql = `insert into teachers (id, name, last_name,age) VALUES (${nanoid()}, ${
+    req.body.name
+  },${req.body.last_name},${req.body.age})`;
+
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    res.send(`created`);
+  });
+});
+
+/*
+PUT /update/pupil/:pupilID
+PUT /update/class/:classID
+Will update the object at the correct table with information in the req.body
+*/
+
+// PUT /update/pupil/:pupilID
+app.put("/update/student/:studentID", function (req, res) {
+  const sql = `update students set last_name=${req.body.last_name} where ID=${req.params.studentID}`;
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    res.send(`updated`);
+  });
+});
+
+// PUT /update/class/:classID
+app.put("/update/class/:classID", function (req, res) {
+  const sql = `update classes set class_name=${req.body.class_name} where ID=${req.params.classID}`;
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    res.send(`updated`);
+  });
+});
+
+/*
+DELETE /remove/pupil/:pupilID
+DELETE /remove/teacher/:teacher
+Will delete the object at the correct table.
+DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
+
+*/
+// DELETE /remove/pupil/:pupilID
+app.put("/remove/student/:studentID", function (req, res) {
+  const sql = `delete from students where ID=${req.params.pupilID}`;
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    res.send(`deleted`);
+  });
+});
+
+// DELETE /remove/teacher/:teacher
+app.put("/remove/teacher/:teacher", function (req, res) {
+  const sql = `delete from teachers where ID=${req.params.teacher}`;
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    res.send(`deleted`);
   });
 });
 
