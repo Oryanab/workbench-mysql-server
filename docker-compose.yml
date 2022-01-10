@@ -3,13 +3,10 @@ version: "3.8"
 services:
   app:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - 3000:3000
-    volumes:
-      - .:/app
-      - "/app/node_modules"
     depends_on:
       - mysql_server
 
@@ -20,7 +17,7 @@ services:
     ports:
       - 3306:3306
     environment:
-      - MYSQL_DATABASE=test_db
-      - MYSQL_USER=student
+      - MYSQL_DATABASE=seniors
+      - MYSQL_USER=admin
       - MYSQL_PASSWORD=secret
       - MYSQL_ROOT_PASSWORD=secret
